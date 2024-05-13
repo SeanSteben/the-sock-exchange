@@ -19,10 +19,14 @@ import {
   Routes,
   Link
 } from "react-router-dom";
+import RequireAuth from './components/RequireAuth';
+import { AuthProvider } from './hooks/AuthContext';
+import LoginForm from './components/LoginForm';
 
 
 function App() {
   const [data, setData] = useState([]);
+  const [page, setPage] = useState([]);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -57,9 +61,8 @@ function App() {
   };
 
   return (
-    <Router>
-      <>
-
+    <>
+      <Router>
         <nav className="navbar navbar-expand-lg bg-body-tertiary">
           <div className="container-fluid">
             <a className="navbar-brand" href="#">TSE</a>
@@ -72,30 +75,16 @@ function App() {
                   <Link className="nav-link" to="/">
                     Home
                   </Link>
-
+                </li>
+                <li className="nav-item">
                   <Link className="nav-link" to="/about">
                     About
                   </Link>
-                  <Link className="nav-link" to="/addSock">
-                    Add Sock
-                  </Link>
-                </li>
-                <li className="nav-item">
-                  <a className="nav-link" href="#">Link</a>
                 </li>
                 <li className="nav-item dropdown">
-                  <a className="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                    Dropdown
-                  </a>
-                  <ul className="dropdown-menu">
-                    <li><a className="dropdown-item" href="#">Action</a></li>
-                    <li><a className="dropdown-item" href="#">Another action</a></li>
-                    <li><hr className="dropdown-divider" /></li>
-                    <li><a className="dropdown-item" href="#">Something else here</a></li>
-                  </ul>
-                </li>
-                <li className="nav-item">
-                  <a className="nav-link disabled" aria-disabled="true">Disabled</a>
+                  <Link className="nav-link" to="/add">
+                    Add Sock
+                  </Link>
                 </li>
               </ul>
               <Search setData={setData} />
@@ -106,25 +95,28 @@ function App() {
 
           <div className="container-fluid">
             <div className="row">
-              Both socks and space rockets 🚀 will take you to new heights, but only one will get cold feet!
-              <div className="card" style={{ flex: '1', minWidth: '300px', maxWidth: '45%' }}></div>
-
-              
-              <Featured banana = {promo_data}/>
-              <Routes>
-                <Route exact path="/" element={<Home data={data} handleDelete={handleDelete} />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/addSock" element={<AddSock />} />
-              </Routes>
-
-
-              <Footer environment={"DEVELOPMENT"} />
+              <Featured banana={promo_data} />
+              <hr />
+              <AuthProvider>
+                <Routes>
+                  <Route exact path="/" element={<Home data={data} handleDelete={handleDelete} page={page} setPage={setPage} />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/add" element={
+                    <RequireAuth>
+                      <AddSock />
+                    </RequireAuth>
+                  } />
+                  <Route path="/Login" element={<LoginForm />} />
+                </Routes>
+              </AuthProvider>
             </div>
-
           </div>
         </main>
-      </>
-    </Router>
+        <footer className={import.meta.env.VITE_ENVIRONMENT === "development" ? "bg-yellow" : import.meta.env.VITE_ENVIRONMENT === "production" ? "bg-green" : ""}>
+          <div><strong>{import.meta.env.VITE_ENVIRONMENT.toUpperCase()}</strong></div>
+        </footer>
+      </Router>
+    </>
   )
 }
 
